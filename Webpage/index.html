@@ -168,6 +168,47 @@ body::before {
   text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
 }
 
+/* --- Chart tooltip --- */
+.chart-card {
+  position: relative;
+}
+
+.chart-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-accent);
+  border-radius: 3px;
+  padding: 5px 8px;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.15s;
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.1);
+}
+
+.chart-tooltip.visible {
+  opacity: 1;
+}
+
+.chart-tooltip .tt-time {
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+}
+
+.chart-tooltip .tt-value {
+  color: var(--cyan-glow);
+}
+
+/* Crosshair lines */
+.chart-card canvas {
+  cursor: crosshair;
+}
+
 /* --- Charts grid --- */
 .charts {
   display: grid;
@@ -337,6 +378,7 @@ body::before {
         <div class="chart-value-preview" id="cv-voc">--</div>
       </div>
       <canvas id="chart-voc"></canvas>
+      <div class="chart-tooltip" id="tt-chart-voc"><div class="tt-time"></div><div class="tt-value"></div></div>
     </div>
     <div class="chart-card">
       <div class="chart-header">
@@ -344,6 +386,7 @@ body::before {
         <div class="chart-value-preview" id="cv-co2">-- ppm</div>
       </div>
       <canvas id="chart-co2"></canvas>
+      <div class="chart-tooltip" id="tt-chart-co2"><div class="tt-time"></div><div class="tt-value"></div></div>
     </div>
     <div class="chart-card">
       <div class="chart-header">
@@ -351,6 +394,7 @@ body::before {
         <div class="chart-value-preview" id="cv-temp">-- &deg;C</div>
       </div>
       <canvas id="chart-temp"></canvas>
+      <div class="chart-tooltip" id="tt-chart-temp"><div class="tt-time"></div><div class="tt-value"></div></div>
     </div>
     <div class="chart-card">
       <div class="chart-header">
@@ -358,6 +402,7 @@ body::before {
         <div class="chart-value-preview" id="cv-hum">-- %</div>
       </div>
       <canvas id="chart-hum"></canvas>
+      <div class="chart-tooltip" id="tt-chart-hum"><div class="tt-time"></div><div class="tt-value"></div></div>
     </div>
   </div>
 
@@ -431,6 +476,9 @@ var THRESHOLDS = {
   pm4:  [{ limit: 25, color: '#4ade80' }, { limit: 50, color: '#facc15' }, { limit: Infinity, color: '#ef4444' }],
   nox:  [{ limit: 20, color: '#4ade80' }, { limit: 150, color: '#facc15' }, { limit: Infinity, color: '#ef4444' }]
 };
+
+// Store chart data for tooltip lookups
+var chartData = {};
 
 function getColor(value, thresholds) {
   for (var i = 0; i < thresholds.length; i++) {
@@ -559,6 +607,18 @@ function drawChart(canvasId, dataPoints, timestamps, thresholds) {
     ctx.fillStyle = 'rgba(' + r2 + ',' + g2 + ',' + b2 + ', 0.2)';
     ctx.fill();
   }
+
+  // Store data for tooltip
+  chartData[canvasId] = {
+    points: dataPoints,
+    timestamps: timestamps,
+    thresholds: thresholds,
+    pad: pad,
+    plotW: plotW,
+    plotH: plotH,
+    minV: minV,
+    rangeV: rangeV
+  };
 }
 
 function setCardAccent(cardId, value, thresholds) {
@@ -660,6 +720,62 @@ function refresh() {
 
 refresh();
 setInterval(refresh, 30000);
+
+// --- Chart tooltip handlers ---
+['chart-voc', 'chart-co2', 'chart-temp', 'chart-hum'].forEach(function(canvasId) {
+  var canvas = document.getElementById(canvasId);
+  var tooltip = document.getElementById('tt-' + canvasId);
+  if (!canvas || !tooltip) return;
+
+  canvas.addEventListener('mousemove', function(e) {
+    var cd = chartData[canvasId];
+    if (!cd || !cd.points || cd.points.length === 0) return;
+
+    var rect = canvas.getBoundingClientRect();
+    var mx = e.clientX - rect.left;
+    var my = e.clientY - rect.top;
+
+    // Check if mouse is within the plot area
+    if (mx < cd.pad.left || mx > cd.pad.left + cd.plotW ||
+        my < cd.pad.top || my > cd.pad.top + cd.plotH) {
+      tooltip.classList.remove('visible');
+      return;
+    }
+
+    // Find nearest data point index
+    var frac = (mx - cd.pad.left) / cd.plotW;
+    var idx = Math.round(frac * (cd.points.length - 1));
+    idx = Math.max(0, Math.min(cd.points.length - 1, idx));
+
+    var val = cd.points[idx];
+    var ts = cd.timestamps[idx];
+    var parts = ts.split(' ');
+    var timePart = parts.length > 1 ? parts[1] : ts;
+    var hm = timePart.substring(0, 8);
+
+    var color = getColor(val, cd.thresholds);
+    tooltip.querySelector('.tt-time').textContent = hm;
+    tooltip.querySelector('.tt-value').textContent = val.toFixed(1);
+    tooltip.querySelector('.tt-value').style.color = color;
+
+    // Position tooltip relative to chart-card
+    var cardRect = canvas.parentElement.getBoundingClientRect();
+    var tx = e.clientX - cardRect.left + 12;
+    var ty = e.clientY - cardRect.top - 30;
+
+    // Keep tooltip within the card bounds
+    if (tx + 90 > cardRect.width) tx = e.clientX - cardRect.left - 90;
+    if (ty < 0) ty = e.clientY - cardRect.top + 12;
+
+    tooltip.style.left = tx + 'px';
+    tooltip.style.top = ty + 'px';
+    tooltip.classList.add('visible');
+  });
+
+  canvas.addEventListener('mouseleave', function() {
+    tooltip.classList.remove('visible');
+  });
+});
 </script>
 </body>
 </html>
