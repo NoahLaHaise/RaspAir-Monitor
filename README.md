@@ -1,5 +1,5 @@
 
-<img width="1043" height="849" alt="sample" src="https://github.com/user-attachments/assets/99faefd2-9b95-4915-8745-d3b54b261dd7" />
+<img width="986" height="835" alt="Screenshot 2026-02-14 233719" src="https://github.com/user-attachments/assets/ce1d1a88-e566-437a-a9b6-dd9ccce3f702" />
 
 # RaspAir Monitor
 
