@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import datetime
+from datetime import date, datetime
 import config
 
 class SensorDB:
@@ -59,6 +59,20 @@ class SensorDB:
         except Exception as e:
             print(f"Error selecting latest measurement: {e}")
             return None
+        finally:
+            conn.close()
+    
+    def select_today_measurements(self) -> list[sqlite3.Row] | None:
+        try:
+            datetime_today = date.today().strftime("%Y-%m-%d")
+            conn = self.get_connection()
+            cursor = conn.cursor()
+            cursor.execute('''SELECT * FROM air_quality WHERE DATE(timestamp) = ? ORDER BY timestamp DESC''', (datetime_today,))
+            rows = cursor.fetchall()
+            return rows
+        except Exception as e:
+            print(f"Error selecting day measurements: {e}")
+            return []
         finally:
             conn.close()
         
