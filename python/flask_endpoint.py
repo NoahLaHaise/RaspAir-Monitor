@@ -25,3 +25,11 @@ def get_air_history():
     if not rows:
         return jsonify([])
     return jsonify([dict(r) for r in rows])
+
+@app.route('/day_air_history')
+def get_day_air_history():
+    db = SensorDB()
+    rows = db.select_today_measurements()
+    if not rows:
+        return jsonify([])
+    return jsonify([dict(r) for r in rows])

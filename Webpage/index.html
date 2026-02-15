@@ -116,6 +116,58 @@ body::before {
   padding-left: 2px;
 }
 
+/* --- Telemetry header with toggle --- */
+.telemetry-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.telemetry-header .section-label {
+  margin-bottom: 0;
+}
+
+.range-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.range-toggle button {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  background: transparent;
+  border: none;
+  color: var(--text-label);
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: color 0.3s, background 0.3s, text-shadow 0.3s;
+  position: relative;
+  z-index: 1;
+}
+
+.range-toggle button:not(:last-child) {
+  border-right: 1px solid var(--border-dim);
+}
+
+.range-toggle button:hover {
+  color: var(--text-secondary);
+}
+
+.range-toggle button.active {
+  color: var(--cyan-glow);
+  background: rgba(0, 212, 255, 0.08);
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+}
+
 /* --- Charts grid --- */
 .charts {
   display: grid;
@@ -271,7 +323,13 @@ body::before {
   </div>
 
   <!-- Charts -->
-  <div class="section-label">Telemetry // Last Hour</div>
+  <div class="telemetry-header">
+    <div class="section-label" id="telemetry-label">Telemetry // Last Hour</div>
+    <div class="range-toggle">
+      <button class="active" id="btn-1hr" onclick="setRange('1hr')">1 HR</button>
+      <button id="btn-1day" onclick="setRange('1day')">24 HR</button>
+    </div>
+  </div>
   <div class="charts">
     <div class="chart-card">
       <div class="chart-header">
@@ -511,8 +569,20 @@ function setCardAccent(cardId, value, thresholds) {
   card.querySelector('.reading-value').style.color = color;
 }
 
+var currentRange = '1hr';
+
+function setRange(range) {
+  currentRange = range;
+  document.getElementById('btn-1hr').classList.toggle('active', range === '1hr');
+  document.getElementById('btn-1day').classList.toggle('active', range === '1day');
+  document.getElementById('telemetry-label').textContent =
+    range === '1hr' ? 'Telemetry // Last Hour' : 'Telemetry // Last 24 Hours';
+  fetchHistory();
+}
+
 function fetchHistory() {
-  return fetch('/air_history')
+  var endpoint = currentRange === '1day' ? '/day_air_history' : '/air_history';
+  return fetch(endpoint)
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (!data || data.length === 0) {

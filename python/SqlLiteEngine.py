@@ -64,10 +64,9 @@ class SensorDB:
     
     def select_today_measurements(self) -> list[sqlite3.Row] | None:
         try:
-            datetime_today = date.today().strftime("%Y-%m-%d")
             conn = self.get_connection()
             cursor = conn.cursor()
-            cursor.execute('''SELECT * FROM air_quality WHERE DATE(timestamp) = ? ORDER BY timestamp DESC''', (datetime_today,))
+            cursor.execute('''SELECT * FROM air_quality WHERE timestamp >= datetime('now', '-24 hour', 'localtime') ORDER BY timestamp ASC''')
             rows = cursor.fetchall()
             return rows
         except Exception as e:
