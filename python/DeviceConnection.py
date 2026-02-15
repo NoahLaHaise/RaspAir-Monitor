@@ -3,6 +3,11 @@ from SqlLiteEngine import SensorDB
 from sensirion_i2c_driver import LinuxI2cTransceiver, I2cConnection, CrcCalculator
 from sensirion_driver_adapters.i2c_adapter.i2c_channel import I2cChannel
 from sensirion_i2c_sen66.device import Sen66Device
+import sys 
+
+reset_device = True
+if len(sys.argv) > 1 and sys.argv[1] == "1":
+    reset_device = False
 
 I2C_PORT = '/dev/i2c-1'
 
@@ -20,10 +25,10 @@ with LinuxI2cTransceiver(I2C_PORT) as i2c_transceiver:
     sensor = Sen66Device(channel)
 
     try:
-
-        print("Resetting device...")
-        sensor.device_reset()
-        time.sleep(1.2) 
+        if reset_device:
+            print("Resetting device...")
+            sensor.device_reset()
+            time.sleep(1.2) 
 
         serial_number = sensor.get_serial_number()
         print(f"Device Connected! Serial Number: {serial_number}")
