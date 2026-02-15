@@ -1,9 +1,9 @@
 
-<img width="1043" height="849" alt="sample" src="https://github.com/user-attachments/assets/99faefd2-9b95-4915-8745-d3b54b261dd7" />
+<img width="986" height="835" alt="Screenshot 2026-02-14 233719" src="https://github.com/user-attachments/assets/ce1d1a88-e566-437a-a9b6-dd9ccce3f702" />
 
 # RaspAir Monitor
 
-Air quality monitoring dashboard for Raspberry Pi Zero 2W using a Sensirion SEN66 sensor.
+Air quality monitoring dashboard for Raspberry Pi Zero 2W using a Sensirion SEN66 sensor. Dashboard is hosted locally on the raspberry pi and can be viewed by any device on the same network as the Pi.
 
 ## Prerequisites
 
