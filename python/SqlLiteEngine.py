@@ -75,4 +75,17 @@ class SensorDB:
             return []
         finally:
             conn.close()
+
+    def select_last_hour_measurements(self) -> list[sqlite3.Row] | None:
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor()
+            cursor.execute('''SELECT * FROM air_quality WHERE timestamp >= datetime('now', '-1 hour', 'localtime') ORDER BY timestamp ASC''')
+            rows = cursor.fetchall()
+            return rows
+        except Exception as e:
+            print(f"Error selecting last hour measurements: {e}")
+            return []
+        finally:
+            conn.close()
         
