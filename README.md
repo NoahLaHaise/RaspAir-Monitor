@@ -48,3 +48,5 @@ To start collecting data from the SEN66 sensor:
 cd python
 python DeviceConnection.py
 ```
+
+To avoid excessive writes to the SD card, AQ updates are pushed every 60 seconds. 
