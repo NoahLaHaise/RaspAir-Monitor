@@ -13,4 +13,5 @@
   journalctl -u airmonitor-web -f            # live logs
 
   ## 3. code changes
-  sudo systemctl restart airmonitor-sensor airmonitor-web
+  sudo systemctl restart airmonitor-web
+  airmonitor-sensor 

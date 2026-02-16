@@ -404,6 +404,38 @@ body::before {
       <canvas id="chart-hum"></canvas>
       <div class="chart-tooltip" id="tt-chart-hum"><div class="tt-time"></div><div class="tt-value"></div></div>
     </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">PM 1.0</div>
+        <div class="chart-value-preview" id="cv-pm1">-- &micro;g/m&sup3;</div>
+      </div>
+      <canvas id="chart-pm1"></canvas>
+      <div class="chart-tooltip" id="tt-chart-pm1"><div class="tt-time"></div><div class="tt-value"></div></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">PM 2.5</div>
+        <div class="chart-value-preview" id="cv-pm25">-- &micro;g/m&sup3;</div>
+      </div>
+      <canvas id="chart-pm25"></canvas>
+      <div class="chart-tooltip" id="tt-chart-pm25"><div class="tt-time"></div><div class="tt-value"></div></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">PM 4.0</div>
+        <div class="chart-value-preview" id="cv-pm4">-- &micro;g/m&sup3;</div>
+      </div>
+      <canvas id="chart-pm4"></canvas>
+      <div class="chart-tooltip" id="tt-chart-pm4"><div class="tt-time"></div><div class="tt-value"></div></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">PM 10</div>
+        <div class="chart-value-preview" id="cv-pm10">-- &micro;g/m&sup3;</div>
+      </div>
+      <canvas id="chart-pm10"></canvas>
+      <div class="chart-tooltip" id="tt-chart-pm10"><div class="tt-time"></div><div class="tt-value"></div></div>
+    </div>
   </div>
 
   <!-- Current Readings — 9 cards in 3x3 -->
@@ -651,6 +683,10 @@ function fetchHistory() {
         drawChart('chart-co2', [], [], THRESHOLDS.co2, 0);
         drawChart('chart-temp', [], [], THRESHOLDS.temp);
         drawChart('chart-hum', [], [], THRESHOLDS.hum);
+        drawChart('chart-pm1', [], [], THRESHOLDS.pm1, 0);
+        drawChart('chart-pm25', [], [], THRESHOLDS.pm25, 0);
+        drawChart('chart-pm4', [], [], THRESHOLDS.pm4, 0);
+        drawChart('chart-pm10', [], [], THRESHOLDS.pm10, 0);
         return;
       }
       var ts = data.map(function(d) { return d.timestamp; });
@@ -658,6 +694,10 @@ function fetchHistory() {
       drawChart('chart-co2', data.map(function(d) { return d.CO2; }), ts, THRESHOLDS.co2, 0);
       drawChart('chart-temp', data.map(function(d) { return d.Temp; }), ts, THRESHOLDS.temp);
       drawChart('chart-hum', data.map(function(d) { return d.Humidity; }), ts, THRESHOLDS.hum);
+      drawChart('chart-pm1', data.map(function(d) { return d.PM1; }), ts, THRESHOLDS.pm1, 0);
+      drawChart('chart-pm25', data.map(function(d) { return d.PM25; }), ts, THRESHOLDS.pm25, 0);
+      drawChart('chart-pm4', data.map(function(d) { return d.PM4; }), ts, THRESHOLDS.pm4, 0);
+      drawChart('chart-pm10', data.map(function(d) { return d.PM10; }), ts, THRESHOLDS.pm10, 0);
 
       // Update chart header previews with latest value
       var last = data[data.length - 1];
@@ -666,12 +706,20 @@ function fetchHistory() {
         document.getElementById('cv-co2').textContent = parseFloat(last.CO2).toFixed(0) + ' ppm';
         document.getElementById('cv-temp').textContent = parseFloat(last.Temp).toFixed(1) + ' \u00B0C';
         document.getElementById('cv-hum').textContent = parseFloat(last.Humidity).toFixed(1) + ' %';
+        document.getElementById('cv-pm1').textContent = parseFloat(last.PM1).toFixed(1) + ' \u00B5g/m\u00B3';
+        document.getElementById('cv-pm25').textContent = parseFloat(last.PM25).toFixed(1) + ' \u00B5g/m\u00B3';
+        document.getElementById('cv-pm4').textContent = parseFloat(last.PM4).toFixed(1) + ' \u00B5g/m\u00B3';
+        document.getElementById('cv-pm10').textContent = parseFloat(last.PM10).toFixed(1) + ' \u00B5g/m\u00B3';
 
         // Color the preview values
         document.getElementById('cv-voc').style.color = getColor(last.VOC, THRESHOLDS.voc);
         document.getElementById('cv-co2').style.color = getColor(last.CO2, THRESHOLDS.co2);
         document.getElementById('cv-temp').style.color = getColor(last.Temp, THRESHOLDS.temp);
         document.getElementById('cv-hum').style.color = getColor(last.Humidity, THRESHOLDS.hum);
+        document.getElementById('cv-pm1').style.color = getColor(last.PM1, THRESHOLDS.pm1);
+        document.getElementById('cv-pm25').style.color = getColor(last.PM25, THRESHOLDS.pm25);
+        document.getElementById('cv-pm4').style.color = getColor(last.PM4, THRESHOLDS.pm4);
+        document.getElementById('cv-pm10').style.color = getColor(last.PM10, THRESHOLDS.pm10);
       }
     })
     .catch(function(err) { console.error('History fetch error:', err); });
@@ -723,7 +771,7 @@ refresh();
 setInterval(refresh, 30000);
 
 // --- Chart tooltip handlers ---
-['chart-voc', 'chart-co2', 'chart-temp', 'chart-hum'].forEach(function(canvasId) {
+['chart-voc', 'chart-co2', 'chart-temp', 'chart-hum', 'chart-pm1', 'chart-pm25', 'chart-pm4', 'chart-pm10'].forEach(function(canvasId) {
   var canvas = document.getElementById(canvasId);
   var tooltip = document.getElementById('tt-' + canvasId);
   if (!canvas || !tooltip) return;
