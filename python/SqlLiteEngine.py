@@ -1,6 +1,7 @@
 import sqlite3
 from datetime import date, datetime
 import config
+from statistics import mean, stdev
 
 class SensorDB:
     DB_PATH = config.DB_PATH
@@ -61,4 +62,18 @@ class SensorDB:
             return []
         finally:
             conn.close()
-        
+
+    def calc_mean_and_stddev(self, rows: list[sqlite3.Row]) -> dict:
+        stats = {}
+        for col in rows[0].keys():
+            if col == 'id' or col == 'timestamp':
+                continue
+            
+            avg = mean(r[col] for r in rows)
+            stats[col +'_mean'] = avg
+            stats[col +'_stdev'] = stdev((r[col] for r in rows), avg)
+
+        return stats
+
+            
+

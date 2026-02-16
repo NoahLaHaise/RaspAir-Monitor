@@ -26,3 +26,12 @@ def get_air_history():
     if not rows:
         return jsonify([])
     return jsonify([dict(r) for r in rows])
+
+@app.route('/air_statistics')
+def get_air_history():
+    time_frame = request.args.get('time_frame', default=1, type=int)
+    db = SensorDB()
+    rows = db.select_measurements(hours_back=time_frame)
+    if not rows:
+        return jsonify([])
+    return jsonify([dict(r) for r in rows])
