@@ -1,3 +1,5 @@
+ /etc/systemd/system/airmonitor-sensor.service
+ 
  ## 1. Enable and start
   sudo systemctl daemon-reload -- this is only required when actually changing the .service files
   sudo systemctl enable airmonitor-sensor airmonitor-web

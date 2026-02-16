@@ -28,7 +28,7 @@ def get_air_history():
     return jsonify([dict(r) for r in rows])
 
 @app.route('/air_statistics')
-def get_air_history():
+def get_air_stats():
     time_frame = request.args.get('time_frame', default=1, type=int)
     db = SensorDB()
     rows = db.select_measurements(hours_back=time_frame)

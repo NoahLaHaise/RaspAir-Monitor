@@ -487,7 +487,7 @@ function getColor(value, thresholds) {
   return thresholds[thresholds.length - 1].color;
 }
 
-function drawChart(canvasId, dataPoints, timestamps, thresholds) {
+function drawChart(canvasId, dataPoints, timestamps, thresholds, minFloor) {
   var canvas = document.getElementById(canvasId);
   if (!canvas) return;
   var dpr = window.devicePixelRatio || 1;
@@ -518,6 +518,7 @@ function drawChart(canvasId, dataPoints, timestamps, thresholds) {
   var marginV = rangeV * 0.1;
   minV -= marginV;
   maxV += marginV;
+  if (minFloor != null && minV < minFloor) minV = minFloor;
   rangeV = maxV - minV;
 
   // Grid lines
@@ -646,15 +647,15 @@ function fetchHistory() {
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (!data || data.length === 0) {
-        drawChart('chart-voc', [], [], THRESHOLDS.voc);
-        drawChart('chart-co2', [], [], THRESHOLDS.co2);
+        drawChart('chart-voc', [], [], THRESHOLDS.voc, 0);
+        drawChart('chart-co2', [], [], THRESHOLDS.co2, 0);
         drawChart('chart-temp', [], [], THRESHOLDS.temp);
         drawChart('chart-hum', [], [], THRESHOLDS.hum);
         return;
       }
       var ts = data.map(function(d) { return d.timestamp; });
-      drawChart('chart-voc', data.map(function(d) { return d.VOC; }), ts, THRESHOLDS.voc);
-      drawChart('chart-co2', data.map(function(d) { return d.CO2; }), ts, THRESHOLDS.co2);
+      drawChart('chart-voc', data.map(function(d) { return d.VOC; }), ts, THRESHOLDS.voc, 0);
+      drawChart('chart-co2', data.map(function(d) { return d.CO2; }), ts, THRESHOLDS.co2, 0);
       drawChart('chart-temp', data.map(function(d) { return d.Temp; }), ts, THRESHOLDS.temp);
       drawChart('chart-hum', data.map(function(d) { return d.Humidity; }), ts, THRESHOLDS.hum);
 
