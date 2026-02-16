@@ -641,8 +641,8 @@ function setRange(range) {
 }
 
 function fetchHistory() {
-  var endpoint = currentRange === '1day' ? '/day_air_history' : '/air_history';
-  return fetch(endpoint)
+  var hours_back = currentRange === '1day' ? 24 : 1;
+  return fetch('/air_history?hours_back=' + hours_back)
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (!data || data.length === 0) {

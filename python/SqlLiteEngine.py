@@ -36,19 +36,6 @@ class SensorDB:
         finally:
             conn.close()
 
-    def select_measurements(self, limit=100) -> list[sqlite3.Row] | None:
-        try:
-            conn = self.get_connection()
-            cursor = conn.cursor()
-            cursor.execute('''SELECT * FROM air_quality ORDER BY timestamp DESC LIMIT ?''', (limit,))
-            rows = cursor.fetchall()
-            return rows
-        except Exception as e:
-            print(f"Error selecting measurements: {e}")
-            return []
-        finally:
-            conn.close()
-
     def select_latest_measurement(self) -> sqlite3.Row | None:
         try:
             conn = self.get_connection()
@@ -61,25 +48,12 @@ class SensorDB:
             return None
         finally:
             conn.close()
-    
-    def select_today_measurements(self) -> list[sqlite3.Row] | None:
-        try:
-            conn = self.get_connection()
-            cursor = conn.cursor()
-            cursor.execute('''SELECT * FROM air_quality WHERE timestamp >= datetime('now', '-24 hour', 'localtime') ORDER BY timestamp ASC''')
-            rows = cursor.fetchall()
-            return rows
-        except Exception as e:
-            print(f"Error selecting day measurements: {e}")
-            return []
-        finally:
-            conn.close()
 
-    def select_last_hour_measurements(self) -> list[sqlite3.Row] | None:
+    def select_measurements(self, hours_back=1) -> list[sqlite3.Row] | None:
         try:
             conn = self.get_connection()
             cursor = conn.cursor()
-            cursor.execute('''SELECT * FROM air_quality WHERE timestamp >= datetime('now', '-1 hour', 'localtime') ORDER BY timestamp ASC''')
+            cursor.execute('''SELECT * FROM air_quality WHERE timestamp >= datetime('now', '-%d hour', 'localtime') ORDER BY timestamp ASC''' % hours_back)
             rows = cursor.fetchall()
             return rows
         except Exception as e:

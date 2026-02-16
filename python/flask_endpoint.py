@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, send_from_directory, request
 from SqlLiteEngine import SensorDB
 import config
 
@@ -20,16 +20,9 @@ def get_air_data():
 
 @app.route('/air_history')
 def get_air_history():
+    hours_back = request.args.get('hours_back', default=1, type=int)
     db = SensorDB()
-    rows = db.select_last_hour_measurements()
-    if not rows:
-        return jsonify([])
-    return jsonify([dict(r) for r in rows])
-
-@app.route('/day_air_history')
-def get_day_air_history():
-    db = SensorDB()
-    rows = db.select_today_measurements()
+    rows = db.select_measurements(hours_back=hours_back)
     if not rows:
         return jsonify([])
     return jsonify([dict(r) for r in rows])
