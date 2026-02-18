@@ -1,2 +1,4 @@
 sensirion-i2c-sen66
 flask
+requests
+python-dotenv
