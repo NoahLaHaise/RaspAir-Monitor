@@ -16,15 +16,21 @@ class TelegramMessenger:
     
     def send_message(self, msg: str):
         #print(self.endpoint)
+
         url = f'{self.endpoint}/sendMessage?chat_id={self.chat_id}&text={msg}'
-        requests.post(url)
+        try:
+            requests.post(url)
+        except:
+            print("can't send messages to tele")
 
     def get_messages(self):
         url = f'{self.endpoint}/getUpdates'
-        response = requests.get(url)
-        print(response.text)
-
-
+        try:
+            response = requests.get(url)
+            print(response.text)
+        except:
+            print("can't get messages frpm tele")
+        
 tele = TelegramMessenger()
 tele.send_message('test')
 tele.get_messages()
