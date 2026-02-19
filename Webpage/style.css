@@ -72,6 +72,50 @@ body::before {
   letter-spacing: 1px;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.nav-tab {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  color: var(--text-label);
+  padding: 5px 14px;
+  cursor: pointer;
+  transition: color 0.3s, background 0.3s, text-shadow 0.3s;
+}
+
+.nav-tab:not(:last-child) {
+  border-right: 1px solid var(--border-dim);
+}
+
+.nav-tab:hover {
+  color: var(--text-secondary);
+}
+
+.nav-tab.active {
+  color: var(--cyan-glow);
+  background: rgba(0, 212, 255, 0.08);
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+}
+
 .header-status {
   display: flex;
   align-items: center;

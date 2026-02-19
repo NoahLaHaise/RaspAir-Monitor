@@ -63,15 +63,17 @@ class SensorDB:
         finally:
             conn.close()
 
-    def calc_mean_and_stddev(self, rows: list[sqlite3.Row]) -> dict:
+    def calc_mean_and_stddev(self, hours_back = 24) -> dict:
         stats = {}
+
+        rows = self.select_measurements(hours_back)
+
         for col in rows[0].keys():
             if col == 'id' or col == 'timestamp':
-                continue
-            
+                continue    
             avg = mean(r[col] for r in rows)
             stats[col +'_mean'] = avg
-            stats[col +'_stdev'] = stdev((r[col] for r in rows), avg)
+            stats[col +'_stdev'] = stdev([r[col] for r in rows], avg)
 
         return stats
 

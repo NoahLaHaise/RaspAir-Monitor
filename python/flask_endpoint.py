@@ -10,6 +10,10 @@ app = Flask(__name__, static_folder=str(WEBPAGE_DIR), static_url_path='')
 def index():
     return send_from_directory(str(WEBPAGE_DIR), 'index.html')
 
+@app.route('/data')
+def data():
+    return send_from_directory(str(WEBPAGE_DIR), 'data.html')
+
 @app.route('/air_data')
 def get_air_data():
     db = SensorDB()
@@ -29,9 +33,9 @@ def get_air_history():
 
 @app.route('/air_statistics')
 def get_air_stats():
-    time_frame = request.args.get('time_frame', default=1, type=int)
+    time_frame = request.args.get('time_frame', default=24, type=int)
     db = SensorDB()
-    rows = db.select_measurements(hours_back=time_frame)
+    rows = db.calc_mean_and_stddev(hours_back=time_frame)
     if not rows:
         return jsonify([])
-    return jsonify([dict(r) for r in rows])
+    return jsonify(rows)

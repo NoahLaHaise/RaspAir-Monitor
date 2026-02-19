@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RASP AIR // Data</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .data-page .period-section {
+    margin-bottom: 24px;
+  }
+
+  .period-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 10px;
+    padding-left: 2px;
+  }
+
+  .period-title {
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-label);
+  }
+
+  .period-count {
+    font-size: 0.5rem;
+    letter-spacing: 1px;
+    color: var(--text-label);
+    opacity: 0.6;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-dim);
+    border-radius: 4px;
+    padding: 14px 12px 12px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, background 0.3s;
+  }
+
+  .stat-card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-accent);
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent-color, var(--border-dim));
+    box-shadow: 0 0 8px var(--accent-color, transparent);
+    transition: background 0.5s, box-shadow 0.5s;
+  }
+
+  .stat-label {
+    font-size: 0.55rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-label);
+    margin-bottom: 6px;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    line-height: 1;
+    transition: color 0.5s;
+  }
+
+  .stat-unit {
+    font-size: 0.55rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+
+  .stat-range {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-dim);
+  }
+
+  .stat-range-item {
+    font-size: 0.5rem;
+    letter-spacing: 1px;
+    color: var(--text-label);
+    text-transform: uppercase;
+  }
+
+  .stat-range-item span {
+    color: var(--text-secondary);
+  }
+
+  .loading-text {
+    color: var(--text-label);
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 30px 0;
+    animation: pulse-load 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse-load {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .error-text {
+    color: var(--red);
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 30px 0;
+  }
+
+  @media (max-width: 640px) {
+    .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .stat-value { font-size: 1.2rem; }
+    .stat-card { padding: 10px 8px 8px; }
+  }
+
+  @media (max-width: 380px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="container data-page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-title">
+      RASP AIR <span>// MONITOR</span>
+    </div>
+    <div class="header-right">
+      <nav class="nav-tabs">
+        <a href="/" class="nav-tab">Home</a>
+        <a href="/data" class="nav-tab active">Data</a>
+      </nav>
+      <div class="header-status">
+        <div class="status-dot"></div>
+        <span id="conn-status">LIVE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 24 Hour Average -->
+  <div class="period-section" id="section-24h">
+    <div class="period-header">
+      <div class="period-title">Average // Last 24 Hours</div>
+      <div class="period-count" id="count-24h"></div>
+    </div>
+    <div id="grid-24h"><div class="loading-text">Loading 24h data...</div></div>
+  </div>
+
+  <!-- 7 Day Average -->
+  <div class="period-section" id="section-7d">
+    <div class="period-header">
+      <div class="period-title">Average // Last 7 Days</div>
+      <div class="period-count" id="count-7d"></div>
+    </div>
+    <div id="grid-7d"><div class="loading-text">Loading 7d data...</div></div>
+  </div>
+
+  <!-- 30 Day Average -->
+  <div class="period-section" id="section-30d">
+    <div class="period-header">
+      <div class="period-title">Average // Last 30 Days</div>
+      <div class="period-count" id="count-30d"></div>
+    </div>
+    <div id="grid-30d"><div class="loading-text">Loading 30d data...</div></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span id="timestamp">AWAITING DATA...</span>
+    <span>SEN66 // I2C:0x6B</span>
+  </div>
+
+</div>
+
+<script>
+var THRESHOLDS = {
+  voc:  [{ limit: 100, color: '#4ade80' }, { limit: 200, color: '#facc15' }, { limit: Infinity, color: '#ef4444' }],
+  co2:  [{ limit: 800, color: '#4ade80' }, { limit: 1200, color: '#facc15' }, { limit: Infinity, color: '#ef4444' }],
+  temp: [{ limit: 18, color: '#60a5fa' }, { limit: 20, color: '#4ade80' }, { limit: 24, color: '#4ade80' }, { limit: 27, color: '#facc15' }, { limit: Infinity, color: '#ef4444' }],
+  hum:  [{ limit: 20, color: '#ef4444' }, { limit: 30, color: '#facc15' }, { limit: 50, color: '#4ade80' }, { limit: 60, color: '#facc15' }, { limit: Infinity, color: '#ef4444' }],
+  pm25: [{ limit: 12, color: '#4ade80' }, { limit: 35, color: '#facc15' }, { limit: Infinity, color: '#ef4444' }],
+  pm10: [{ limit: 54, color: '#4ade80' }, { limit: 154, color: '#facc15' }, { limit: Infinity, color: '#ef4444' }],
+  pm1:  [{ limit: 10, color: '#4ade80' }, { limit: 25, color: '#facc15' }, { limit: Infinity, color: '#ef4444' }],
+  pm4:  [{ limit: 25, color: '#4ade80' }, { limit: 50, color: '#facc15' }, { limit: Infinity, color: '#ef4444' }],
+  nox:  [{ limit: 20, color: '#4ade80' }, { limit: 150, color: '#facc15' }, { limit: Infinity, color: '#ef4444' }]
+};
+
+var METRICS = [
+  { key: 'PM1',      label: 'PM 1.0',      unit: '\u00B5g/m\u00B3', threshold: 'pm1',  decimals: 1 },
+  { key: 'PM25',     label: 'PM 2.5',      unit: '\u00B5g/m\u00B3', threshold: 'pm25', decimals: 1 },
+  { key: 'PM4',      label: 'PM 4.0',      unit: '\u00B5g/m\u00B3', threshold: 'pm4',  decimals: 1 },
+  { key: 'PM10',     label: 'PM 10',       unit: '\u00B5g/m\u00B3', threshold: 'pm10', decimals: 1 },
+  { key: 'CO2',      label: 'CO2',         unit: 'ppm',             threshold: 'co2',  decimals: 0 },
+  { key: 'VOC',      label: 'VOC Index',   unit: 'index',           threshold: 'voc',  decimals: 0 },
+  { key: 'NOx',      label: 'NOx Index',   unit: 'index',           threshold: 'nox',  decimals: 0 },
+  { key: 'Temp',     label: 'Temperature', unit: '\u00B0C',         threshold: 'temp', decimals: 1 },
+  { key: 'Humidity', label: 'Humidity',    unit: '%',               threshold: 'hum',  decimals: 1 }
+];
+
+function getColor(value, thresholds) {
+  for (var i = 0; i < thresholds.length; i++) {
+    if (value < thresholds[i].limit) return thresholds[i].color;
+  }
+  return thresholds[thresholds.length - 1].color;
+}
+
+function renderGrid(containerId, countId, data) {
+  var container = document.getElementById(containerId);
+  if (!data || Object.keys(data).length === 0) {
+    container.innerHTML = '<div class="error-text">No data available</div>';
+    return;
+  }
+
+  var html = '<div class="stats-grid">';
+  for (var i = 0; i < METRICS.length; i++) {
+    var m = METRICS[i];
+    var avg = data[m.key + '_mean'];
+    var sd = data[m.key + '_stdev'];
+    if (avg == null) continue;
+
+    var color = getColor(avg, THRESHOLDS[m.threshold]);
+    html += '<div class="stat-card" style="--accent-color: ' + color + '">';
+    html += '<div class="stat-label">' + m.label + '</div>';
+    html += '<div class="stat-value" style="color: ' + color + '">' + avg.toFixed(m.decimals) + '</div>';
+    html += '<div class="stat-unit">' + m.unit + '</div>';
+    if (sd != null) {
+      html += '<div class="stat-range">';
+      html += '<div class="stat-range-item">stdev <span>\u00B1' + sd.toFixed(m.decimals) + '</span></div>';
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function fetchStats(hours, containerId) {
+  return fetch('/air_statistics?time_frame=' + hours)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      renderGrid(containerId, null, data);
+    })
+    .catch(function(err) {
+      console.error('Stats fetch error (' + hours + 'h):', err);
+      document.getElementById(containerId).innerHTML = '<div class="error-text">Failed to load data</div>';
+    });
+}
+
+Promise.all([
+  fetchStats(24, 'grid-24h'),
+  fetchStats(168, 'grid-7d'),
+  fetchStats(720, 'grid-30d')
+]).then(function() {
+  var ts = document.getElementById('timestamp');
+  ts.textContent = 'LOADED // ' + new Date().toLocaleString();
+});
+
+// Check connectivity
+fetch('/air_data')
+  .then(function() { document.getElementById('conn-status').textContent = 'LIVE'; })
+  .catch(function() { document.getElementById('conn-status').textContent = 'OFFLINE'; });
+</script>
+</body>
+</html>
