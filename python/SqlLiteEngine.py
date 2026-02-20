@@ -65,7 +65,6 @@ class SensorDB:
 
     def calc_mean_and_stddev(self, hours_back = 24) -> dict:
         stats = {}
-
         rows = self.select_measurements(hours_back)
 
         for col in rows[0].keys():

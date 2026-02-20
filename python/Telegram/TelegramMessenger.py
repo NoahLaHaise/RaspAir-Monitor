@@ -13,7 +13,6 @@ class TelegramMessenger:
         self.endpoint = os.getenv("TELEGRAM_ENDPOINT")
         self.chat_id = os.getenv("TELEGRAM_CHAT_ID")
 
-    
     def send_message(self, msg: str):
         #print(self.endpoint)
 

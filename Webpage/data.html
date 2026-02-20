@@ -9,15 +9,84 @@
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
-  .data-page .period-section {
-    margin-bottom: 24px;
+  /* ── Data page toggle header ── */
+  .data-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
   }
 
-  .period-header {
+  .data-header .section-label {
+    margin-bottom: 0;
+  }
+
+  .period-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border-dim);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .period-toggle button {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background: transparent;
+    border: none;
+    color: var(--text-label);
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: color 0.3s, background 0.3s, text-shadow 0.3s;
+    position: relative;
+    z-index: 1;
+  }
+
+  .period-toggle button:not(:last-child) {
+    border-right: 1px solid var(--border-dim);
+  }
+
+  .period-toggle button:hover {
+    color: var(--text-secondary);
+  }
+
+  .period-toggle button.active {
+    color: var(--cyan-glow);
+    background: rgba(0, 212, 255, 0.08);
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+  }
+
+  /* ── Period sections ── */
+  .period-section {
+    display: none;
+    animation: fadeSlideIn 0.4s ease-out forwards;
+  }
+
+  .period-section.visible {
+    display: block;
+  }
+
+  @keyframes fadeSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .period-meta {
     display: flex;
     align-items: baseline;
     gap: 12px;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
     padding-left: 2px;
   }
 
@@ -35,6 +104,7 @@
     opacity: 0.6;
   }
 
+  /* ── Stats grid ── */
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -48,12 +118,13 @@
     padding: 14px 12px 12px;
     position: relative;
     overflow: hidden;
-    transition: border-color 0.3s, background 0.3s;
+    transition: border-color 0.3s, background 0.3s, transform 0.3s;
   }
 
   .stat-card:hover {
     background: var(--bg-card-hover);
     border-color: var(--border-accent);
+    transform: translateY(-1px);
   }
 
   .stat-card::before {
@@ -90,6 +161,7 @@
     letter-spacing: 1px;
   }
 
+  /* ── STDEV range — increased size ── */
   .stat-range {
     display: flex;
     gap: 12px;
@@ -99,23 +171,25 @@
   }
 
   .stat-range-item {
-    font-size: 0.5rem;
-    letter-spacing: 1px;
-    color: var(--text-label);
+    font-size: 0.7rem;
+    letter-spacing: 1.5px;
+    color: var(--text-secondary);
     text-transform: uppercase;
   }
 
   .stat-range-item span {
-    color: var(--text-secondary);
+    color: var(--text-primary);
+    font-size: 0.75rem;
   }
 
+  /* ── Loading / error states ── */
   .loading-text {
     color: var(--text-label);
     font-size: 0.6rem;
     letter-spacing: 2px;
     text-transform: uppercase;
     text-align: center;
-    padding: 30px 0;
+    padding: 40px 0;
     animation: pulse-load 1.5s ease-in-out infinite;
   }
 
@@ -130,13 +204,34 @@
     letter-spacing: 2px;
     text-transform: uppercase;
     text-align: center;
-    padding: 30px 0;
+    padding: 40px 0;
   }
 
+  /* ── Stagger card entrance ── */
+  .stat-card {
+    opacity: 0;
+    animation: cardReveal 0.35s ease-out forwards;
+  }
+
+  @keyframes cardReveal {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ── Responsive ── */
   @media (max-width: 640px) {
     .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
     .stat-value { font-size: 1.2rem; }
     .stat-card { padding: 10px 8px 8px; }
+    .stat-range-item { font-size: 0.6rem; }
+    .stat-range-item span { font-size: 0.65rem; }
+    .data-header { flex-wrap: wrap; gap: 8px; }
   }
 
   @media (max-width: 380px) {
@@ -164,30 +259,28 @@
     </div>
   </div>
 
-  <!-- 24 Hour Average -->
-  <div class="period-section" id="section-24h">
-    <div class="period-header">
-      <div class="period-title">Average // Last 24 Hours</div>
-      <div class="period-count" id="count-24h"></div>
+  <!-- Data header with period toggle -->
+  <div class="data-header">
+    <div class="section-label" id="data-label">Statistics // Last 24 Hours</div>
+    <div class="period-toggle">
+      <button class="active" id="btn-24h" onclick="setPeriod('24h')">24 HR</button>
+      <button id="btn-7d" onclick="setPeriod('7d')">7 DAY</button>
+      <button id="btn-30d" onclick="setPeriod('30d')">30 DAY</button>
     </div>
+  </div>
+
+  <!-- 24 Hour Average -->
+  <div class="period-section visible" id="section-24h">
     <div id="grid-24h"><div class="loading-text">Loading 24h data...</div></div>
   </div>
 
   <!-- 7 Day Average -->
   <div class="period-section" id="section-7d">
-    <div class="period-header">
-      <div class="period-title">Average // Last 7 Days</div>
-      <div class="period-count" id="count-7d"></div>
-    </div>
     <div id="grid-7d"><div class="loading-text">Loading 7d data...</div></div>
   </div>
 
   <!-- 30 Day Average -->
   <div class="period-section" id="section-30d">
-    <div class="period-header">
-      <div class="period-title">Average // Last 30 Days</div>
-      <div class="period-count" id="count-30d"></div>
-    </div>
     <div id="grid-30d"><div class="loading-text">Loading 30d data...</div></div>
   </div>
 
@@ -200,6 +293,40 @@
 </div>
 
 <script>
+var PERIOD_LABELS = {
+  '24h': 'Statistics // Last 24 Hours',
+  '7d':  'Statistics // Last 7 Days',
+  '30d': 'Statistics // Last 30 Days' 
+};
+
+function setPeriod(period) {
+  // Update toggle buttons
+  var btns = document.querySelectorAll('.period-toggle button');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  document.getElementById('btn-' + period).classList.add('active');
+
+  // Update label
+  document.getElementById('data-label').textContent = PERIOD_LABELS[period];
+
+  // Switch visible section
+  var sections = document.querySelectorAll('.period-section');
+  for (var i = 0; i < sections.length; i++) sections[i].classList.remove('visible');
+  var target = document.getElementById('section-' + period);
+  target.classList.remove('visible');
+  // Force reflow so animation replays
+  void target.offsetWidth;
+  target.classList.add('visible');
+
+  // Re-trigger card stagger animation
+  var cards = target.querySelectorAll('.stat-card');
+  for (var j = 0; j < cards.length; j++) {
+    cards[j].style.animation = 'none';
+    void cards[j].offsetWidth;
+    cards[j].style.animation = 'cardReveal 0.35s ease-out forwards';
+    cards[j].style.animationDelay = (j * 0.04) + 's';
+  }
+}
+
 var THRESHOLDS = {
   voc:  [{ limit: 100, color: '#4ade80' }, { limit: 200, color: '#facc15' }, { limit: Infinity, color: '#ef4444' }],
   co2:  [{ limit: 800, color: '#4ade80' }, { limit: 1200, color: '#facc15' }, { limit: Infinity, color: '#ef4444' }],
@@ -231,7 +358,7 @@ function getColor(value, thresholds) {
   return thresholds[thresholds.length - 1].color;
 }
 
-function renderGrid(containerId, countId, data) {
+function renderGrid(containerId, data) {
   var container = document.getElementById(containerId);
   if (!data || Object.keys(data).length === 0) {
     container.innerHTML = '<div class="error-text">No data available</div>';
@@ -239,6 +366,7 @@ function renderGrid(containerId, countId, data) {
   }
 
   var html = '<div class="stats-grid">';
+  var cardIndex = 0;
   for (var i = 0; i < METRICS.length; i++) {
     var m = METRICS[i];
     var avg = data[m.key + '_mean'];
@@ -246,7 +374,8 @@ function renderGrid(containerId, countId, data) {
     if (avg == null) continue;
 
     var color = getColor(avg, THRESHOLDS[m.threshold]);
-    html += '<div class="stat-card" style="--accent-color: ' + color + '">';
+    var delay = (cardIndex * 0.04) + 's';
+    html += '<div class="stat-card" style="--accent-color: ' + color + '; animation-delay: ' + delay + '">';
     html += '<div class="stat-label">' + m.label + '</div>';
     html += '<div class="stat-value" style="color: ' + color + '">' + avg.toFixed(m.decimals) + '</div>';
     html += '<div class="stat-unit">' + m.unit + '</div>';
@@ -256,6 +385,7 @@ function renderGrid(containerId, countId, data) {
       html += '</div>';
     }
     html += '</div>';
+    cardIndex++;
   }
   html += '</div>';
   container.innerHTML = html;
@@ -265,7 +395,7 @@ function fetchStats(hours, containerId) {
   return fetch('/air_statistics?time_frame=' + hours)
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      renderGrid(containerId, null, data);
+      renderGrid(containerId, data);
     })
     .catch(function(err) {
       console.error('Stats fetch error (' + hours + 'h):', err);
@@ -273,6 +403,7 @@ function fetchStats(hours, containerId) {
     });
 }
 
+// Fetch all periods upfront so toggling is instant
 Promise.all([
   fetchStats(24, 'grid-24h'),
   fetchStats(168, 'grid-7d'),
